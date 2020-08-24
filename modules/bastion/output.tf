@@ -8,3 +8,7 @@ output "security_group_id" {
   value = ibm_is_security_group.maintenance.id
 }
 
+# bastion maintenance security group. Add this to the instances that require access from the bastian
+output "bastion_security_group_id" {
+  value = ibm_is_security_group.bastion.id
+}

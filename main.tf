@@ -130,6 +130,17 @@ resource "ibm_is_security_group_rule" "frontend_ingress_22_bastion" {
   }
 }
 
+/*resource "ibm_is_security_group_rule" "frontend_ingress_22_bastion_group" {
+  group     = ibm_is_security_group.frontend.id
+  direction = "inbound"
+  remote    = module.bastion.bastion_security_group_id
+
+  tcp {
+    port_min = 22
+    port_max = 22
+  }
+}*/
+
 
 #Frontend
 locals {
@@ -158,12 +169,21 @@ resource "ibm_is_instance" "frontend" {
     subnet          = ibm_is_subnet.frontend.id
     security_groups = flatten([local.frontend_security_groups])
   }
+  volumes = [ibm_is_volume.volume.id]
 }
 
-resource "ibm_is_floating_ip" "frontend" {
+/*resource "ibm_is_floating_ip" "frontend" {
   name           = "${var.basename}-frontend-ip"
   target         = ibm_is_instance.frontend.primary_network_interface[0].id
   resource_group = data.ibm_resource_group.all_rg.id
+}*/
+
+resource "ibm_is_volume" "volume" {
+  name = "${var.basename}-frontend-volume"
+  zone           = var.zone
+  iops     = var.iops
+  capacity = var.capacity
+  profile = var.volume_profile
 }
 
 
@@ -179,18 +199,13 @@ resource "null_resource" "ansible_runner" {
       playbook {
         file_path = "${path.module}/playbooks/helloWorld.yml"
       }
-       // hosts = [ibm_is_instance.frontend.primary_network_interface.0.primary_ipv4_address]
+      verbose        = true
     }
 
       ansible_ssh_settings {
-      connect_timeout_seconds = 10
-      connection_attempts = 10
-      ssh_keyscan_timeout = 60
-      insecure_no_strict_host_key_checking = false
-      insecure_bastion_no_strict_host_key_checking = false
-      user_known_hosts_file = ""
-      bastion_user_known_hosts_file = ""
-      }
+      insecure_no_strict_host_key_checking = true
+      connect_timeout_seconds              = 60
+    }
 
   }
 }

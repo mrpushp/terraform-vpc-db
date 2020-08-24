@@ -69,34 +69,18 @@ variable "frontend_user_data" {
 variable "resource_group_name" {
 }
 
+variable "iops" {
+    default = "1000"
+}
+
+variable "capacity" {
+    default = "200"
+}
+
+variable "volume_profile" {
+    default = "custom"
+}
+
+
 variable "ssh_private_key" {
-    default = <<EOF
------BEGIN RSA PRIVATE KEY-----
-MIIEowIBAAKCAQEAuuK3jB4OA+0absjh8UtyBTsMTMZoxz3xXAVvp4HmSv+H/jQX
-9Ht8WivPSPhiFJW48jgSwqKB/1PULVT/PGHHgZn0zMEvokUnUSf/Zzysli+dBjg7
-iaId0xZQn/goodLojSHCW7QAfH/J2Vb6U/llE0iIp8xB+72ogIdDhNo/rzQOBJU4
-udQ0yRbg+rCBht5a5YsMnPW2QHOcQXFGq4rBVRg9t666ubSXHntcgtebIJYk/Wm9
-r8MAS983X+LZNK2bqdKDnndJU34G0A469wfqd3VM0+md9wgxqE7lcyTEuylyGg2m
-48I60UurPEqi708TCIEPtuP4jf+z14Oxq+wbQwIDAQABAoIBAH648wsA6jIBWbYb
-YxHyPZuMYZfBxhSsTPg/+2kTLSxXv0hA3Kl7/mNKZ6EsQ51/tMwR966g8RNILYyb
-oQK5rsWTtqoMqRcYW0OtooLHYqPoH0qzYLPACQc0j3EZnbu1PtlMNfVmxhmlsSI9
-1zqP1tjPi1J0r51bCmI01jTEpQBQWf2btoKGZJmFKxSNSk+mNSN4URxtJbhQmqsr
-l2tGOg2vZQYDaEPnJOxkL3Ijv2toRm7vMuCFGAT4j4KnTltIIQnvqCWNhwJqKuDx
-IdS3HNUqQSTaDdPXVsEMFJxto/AiVUs38mixM63xIx0avIeocQ+DDHEKScxdx/d0
-MPRpKIECgYEA90wnhk6nOYGtxb2s1CGw618HPgRzJ3bkaRh9YSFTxa3xGV7yUHcb
-OxsUa5h9SO+gTMUeILUmBJz4UGZgI9K3knmabUJE41nU53HR3wwK+adQQHwkVuVS
-xJVpFgjMGhvWDYSoJs2KEa/nUCmoPKu8C+eH9ds3WMoHsGoP8DMr1cECgYEAwXZT
-fCyqtsjfS5tZe9v4xcJiHXSdEVP5yk+H2ejpStErPVEimMySRN0atHAL0RNejVdO
-r0s6i/6I3Jkv1zkyDgnaw3B4fcpS6uqPjPuURuqvDMY4MDGrCrabO+1JJpsG1h+4
-njG/C6KB/Q6CtMe1MjsNF0bcDBGaPRuvDdlzGgMCgYEAzOktVvyVU/FALDmem6fP
-ETkMpzbItEqvuOWx/mm/IG2g+YTTBBmtVqx5ny4bofPsv7AV5sQzXF804mnx/7z6
-n0Rj0WS38CrfX2fQnyE7duJMfSJgeiBLFNk42ikv9fJay5jAPGbToRRAdwwNezhR
-+QtAfVfH5KqC9Irt6fp8uAECgYAsFaCUjUEhgciQXAgaF1grCE5/U9Fu32nuVg0o
-9NAkgmGOCW0O0J8MHi41q8qli/phzuFZRJVEzW22hxnFu3zSgiBdpMVwNKiMa4Lm
-p3V0a4oUKR8orEjDmjTphPrEV1NJe9UAB2n3ZsKkPag/NbruhVJIWZdPELvK7QII
-7+IwrQKBgBU8C8q2Dh1E7mj5LnlTgqjgLFTqtzZex7MjnBobdfMS/lhfkU6ufnxR
-ClOYphom/E9jH6mQ47WmhZqhjMyz5lvfTHVYcm2mz2RPiIG7w6nG7ghHKdo25+04
-u4UPFG89Lqn9e+vbDUoro3u3tX+rv6nonIotrVJJrqkohlgXN9/Z
------END RSA PRIVATE KEY-----
-EOF
 }
