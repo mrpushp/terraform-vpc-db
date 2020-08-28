@@ -57,6 +57,7 @@ defined in the helloWorld.yml playbook file.
 
 | name | description | type | required | default | sensitive |
 | ---------- | -------- | -------------- | ---------- | ----------- | ----------- |
+| ibmcloud_api_key | IBM Cloud API Key  | string | ✓ | | ✓ |
 | ssh_key_name | Name given to public SSH key uploaded to IBM Cloud for VSI access |  string |  ✓   |    |    |  
 | basename | basename  | string | | "mydb" |   |  
 | vpc_name  | Unique VPC name     | string | | "mydb"   |   |
@@ -70,7 +71,7 @@ defined in the helloWorld.yml playbook file.
 | iops | IOPS for Block storage  | string | | "100" |   |  
 | capacity | Capacity of the block storage  | string | | "200" |   |
 | volume_profile | Profile of the Block storage  | custom | | "mydb" |   |
-| ssh_private_key | Optional private key from key pair. Only required if it desired to validate remote SSH access to the bastion host and VSIs. | string  | | |  ✓   |
+| ssh_private_key | Optional private key from key pair. Only required if it desired to validate remote SSH access to the bastion host and VSIs. | string  | ✓ | |  ✓   |
 
 
 ## Outputs
