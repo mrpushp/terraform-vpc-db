@@ -197,7 +197,7 @@ resource "null_resource" "ansible_runner" {
   provisioner "ansible" {
     plays {
       playbook {
-        file_path = "${path.module}/playbooks/helloWorld.yml"
+        file_path = "${path.module}/playbooks/mount.yml"
       }
       verbose        = true
     }

@@ -42,15 +42,18 @@ In this example VSI's are grouped by the Terraform module (frontend) used for de
 
 Correct specification of tags is essential for operation of the Ansible dynamic inventory
 script used by Ansible to retrieve host information from the Terraform State file. The tags here should match the roles
-defined in the helloWorld.yml playbook file.
+defined in the mount.yml playbook file.
 
 ## Requirements
 
 
-|  **Name**                  | **Version** |
-|  --------------------------| -------------|
-|  terraform                 | ~> 0.12 |
-|  terraform_provider_ibm    | ~> 1.11 |
+|  **Name**                         | **Version** |
+|  ---------------------------------| -------------|
+|  terraform                        |   ~> 0.12    |
+|  terraform_provider_ibm           |   ~> 1.11.1  |
+|  terraform_provisioner_ansible    |   ~> 2.3.3   |
+
+*NOTE: After downloading the above `terraform_provider_ibm` and `terraform_provisioner_ansible` plugins, you should place them inside `~/.terraform.d/plugins` directory.
 
 
 ## Inputs
@@ -58,6 +61,7 @@ defined in the helloWorld.yml playbook file.
 | name | description | type | required | default | sensitive |
 | ---------- | -------- | -------------- | ---------- | ----------- | ----------- |
 | ibmcloud_api_key | IBM Cloud API Key  | string | ✓ | | ✓ |
+| region | IBMCloud Region that is to be targeted  | string | | "us-south" |   |
 | ssh_key_name | Name given to public SSH key uploaded to IBM Cloud for VSI access |  string |  ✓   |    |    |  
 | basename | basename  | string | | "mydb" |   |  
 | vpc_name  | Unique VPC name     | string | | "mydb"   |   |

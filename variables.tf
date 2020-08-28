@@ -3,6 +3,12 @@ variable "ibmcloud_api_key" {
     description = "Enter your IBM Cloud API Key"
 }
 
+# IBMCloud Region that is to be targeted
+variable "region" {
+    default = "us-south"
+    description = "Enter the target region in which resources are to be created"
+}
+
 # this module does not have defaults for anything but the port that the backend makes available to the frontend
 # ssh key name the string 'pfq' in the example below:
 # $ ibmcloud is keys

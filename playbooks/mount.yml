@@ -1,0 +1,50 @@
+---
+- name: This is a playbook for mounting block storage to vsi
+  hosts: all
+  tasks:
+    - name: Fetch the variables from var file
+      include_vars:
+        file: vars.yml
+
+    - name: check the existing partition information on the remote machine 
+      become: true
+      shell: df -Th
+      register: df_output
+
+    - name: get the fdisk info on the remote machine
+      become: true
+      shell: fdisk -l 
+
+    - name: check if /dev/vdd already exists
+      when: '"{{ block_storage }}" in df_output.stdout'
+      debug: msg="/dev/vdd is already mounted"
+
+    - name: make the file system on the remote machine 
+      become: true
+      shell: mkfs.ext4 "{{ block_storage }}"
+
+    - name: create directory if they dont exist to mount a volume
+      file:
+        path: /mnt/secondary
+        state: directory
+        owner: root
+        group: root
+        mode: 0775
+
+    - name: mount /mnt/secondary
+      shell: mount "{{ block_storage }}" /mnt/secondary
+
+    - name: To find the UUID of the partition 
+      become: true
+      shell: blkid "{{ block_storage }}" -sUUID -ovalue
+      register: UUID 
+
+    - name: Add mount to /etc/fstab
+      lineinfile:
+        dest: /etc/fstab
+        line: '/dev/disk/by-uuid/{{UUID.stdout}} /mnt/secondary ext4 defaults 0 0'
+
+    - name: Verify if block_storage is mounted
+      command:  mount
+      register: mount_output
+      failed_when: '"{{ block_storage }}" not in mount_output.stdout'
