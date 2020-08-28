@@ -1,5 +1,9 @@
-# this module does not have defaults for anything but the port that the backend makes available to the frontend
+# IBMCloud API Key
+variable "ibmcloud_api_key" {
+    description = "Enter your IBM Cloud API Key"
+}
 
+# this module does not have defaults for anything but the port that the backend makes available to the frontend
 # ssh key name the string 'pfq' in the example below:
 # $ ibmcloud is keys
 # Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com...
