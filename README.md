@@ -49,9 +49,9 @@ defined in the mount.yml playbook file.
 
 |  **Name**                         | **Version** |
 |  ---------------------------------| -------------|
-|  terraform                        |   ~> 0.12    |
-|  terraform_provider_ibm           |   ~> 1.11.1  |
-|  terraform_provisioner_ansible    |   ~> 2.3.3   |
+|  [terraform](https://releases.hashicorp.com/terraform/0.12.29/)                        |   ~> 0.12    |
+|  [terraform_provider_ibm](https://github.com/IBM-Cloud/terraform-provider-ibm/releases/tag/v1.11.2)           |   ~> 1.11.2  |
+|  [terraform_provisioner_ansible](https://github.com/radekg/terraform-provisioner-ansible/releases/tag/v2.3.3)    |   ~> 2.3.3   |
 
 *NOTE: After downloading the above `terraform_provider_ibm` and `terraform_provisioner_ansible` plugins, you should place them inside `~/.terraform.d/plugins` directory.
 
