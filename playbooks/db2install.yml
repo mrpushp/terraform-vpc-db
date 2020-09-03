@@ -1,0 +1,29 @@
+---
+- name: This is a playbook for installing db2
+  hosts: all
+  tasks:
+    - name: Copy file with owner and permissions
+      copy:
+        src: db2scripts.tar
+        dest: /tmp/db2scripts.tar
+        owner: root
+        group: root
+        mode: '0744'
+    - name: ansible create directory example
+      file:
+        path: /tmp/db2scripts
+        state: directory
+    - name: Unarchive Installation
+      become: yes
+      unarchive:
+        src: "/tmp/db2scripts.tar"
+        dest: /tmp/db2scripts
+        owner: root
+        group: root
+        mode: '0744'
+        remote_src: yes
+        list_files: yes
+    - name: Run Py script
+      command: python2.7 /tmp/db2scripts/db2_install.py "/opt/IBM/db2/V11.1" "db2inst1" "passw0rd" "50000" "db2fenc1"
+      become: yes
+      become_user: root

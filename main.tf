@@ -202,6 +202,13 @@ resource "null_resource" "ansible_runner" {
       verbose        = true
     }
 
+    plays {
+      playbook {
+        file_path = "${path.module}/playbooks/db2install.yml"
+      }
+      verbose        = true
+    }
+
       ansible_ssh_settings {
       insecure_no_strict_host_key_checking = true
       connect_timeout_seconds              = 60
