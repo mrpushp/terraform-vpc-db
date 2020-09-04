@@ -5,14 +5,20 @@
     - name: Enable a RHSM repository
       rhsm_repository:
         name: rhel-server-rhscl-7-rpms 
-    - name: Install a yum package in Ansible example
+    - name: Install a yum package for Item python27-python-pip
       yum:
         name: python27-python-pip
         state: present
+    - name: Install a yum package for Unzip
+      yum:
+        name: unzip
+        state: present
+    - name: Execute scl to prepare pip
+      shell: echo pip install requests==2.7 | scl enable python27 bash
     - name: Copy file with owner and permissions
       copy:
-        src: db2scripts.tar
-        dest: /tmp/db2scripts.tar
+        src: db2scripts.zip
+        dest: /tmp/db2scripts.zip
         owner: root
         group: root
         mode: '0744'
@@ -23,7 +29,7 @@
     - name: Unarchive Installation
       become: yes
       unarchive:
-        src: "/tmp/db2scripts.tar"
+        src: "/tmp/db2scripts.zip"
         dest: /tmp/db2scripts
         owner: root
         group: root
