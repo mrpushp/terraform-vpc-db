@@ -22,10 +22,28 @@
         owner: root
         group: root
         mode: '0744'
-    - name: ansible create directory example
+    - name: ansible create /tmp/db2scripts directory
       file:
         path: /tmp/db2scripts
         state: directory
+        mode: 0755
+        owner: root
+        group: root
+    - name: ansible create /tmp/db2server directory
+      file:
+        path: /tmp/db2server
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+    - name: Download the tar file
+      become: yes
+      get_url:
+        url: https://s3-api.us-geo.objectstorage.softlayer.net/cpssoftware/DB2S_11.5.4_MPML.tar.gz?AWSAccessKeyId=801bc7a5cb9a49e7b5308cd8d2d7971f&Expires=1630756329&Signature=CUhMhUFJNpywIqsf4Jc7ZFMxXWs%3D
+        dest: /tmp/db2server
+        mode: 0755
+        group: root
+        owner: root
     - name: Unarchive Installation
       become: yes
       unarchive:

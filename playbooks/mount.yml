@@ -22,6 +22,7 @@
     - name: make the file system on the remote machine 
       become: true
       shell: mkfs.ext4 "{{ block_storage }}"
+      when: '"{{ block_storage }}" not in df_output.stdout'
 
     - name: create directory if they dont exist to mount a volume
       file:
@@ -30,21 +31,26 @@
         owner: root
         group: root
         mode: 0775
+      when: '"{{ block_storage }}" not in df_output.stdout'
 
     - name: mount /mnt/secondary
       shell: mount "{{ block_storage }}" /mnt/secondary
+      when: '"{{ block_storage }}" not in df_output.stdout'
 
     - name: To find the UUID of the partition 
       become: true
       shell: blkid "{{ block_storage }}" -sUUID -ovalue
-      register: UUID 
+      register: UUID
+      when: '"{{ block_storage }}" not in df_output.stdout'
 
     - name: Add mount to /etc/fstab
       lineinfile:
         dest: /etc/fstab
         line: '/dev/disk/by-uuid/{{UUID.stdout}} /mnt/secondary ext4 defaults 0 0'
+      when: '"{{ block_storage }}" not in df_output.stdout'
 
     - name: Verify if block_storage is mounted
       command:  mount
       register: mount_output
       failed_when: '"{{ block_storage }}" not in mount_output.stdout'
+      when: '"{{ block_storage }}" not in df_output.stdout'
