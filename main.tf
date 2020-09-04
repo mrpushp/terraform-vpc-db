@@ -141,6 +141,12 @@ resource "ibm_is_security_group_rule" "frontend_ingress_22_bastion" {
   }
 }*/
 
+resource "ibm_is_security_group_rule" "frontend_egress_all" {
+  group     = ibm_is_security_group.frontend.id
+  direction = "outbound"
+  remote    = local.frontend_ingress_cidr
+}
+
 
 #Frontend
 locals {
@@ -172,11 +178,11 @@ resource "ibm_is_instance" "frontend" {
   volumes = [ibm_is_volume.volume.id]
 }
 
-/*resource "ibm_is_floating_ip" "frontend" {
+resource "ibm_is_floating_ip" "frontend" {
   name           = "${var.basename}-frontend-ip"
   target         = ibm_is_instance.frontend.primary_network_interface[0].id
   resource_group = data.ibm_resource_group.all_rg.id
-}*/
+}
 
 resource "ibm_is_volume" "volume" {
   name = "${var.basename}-frontend-volume"
@@ -187,7 +193,7 @@ resource "ibm_is_volume" "volume" {
 }
 
 
-resource "null_resource" "ansible_runner" {
+resource "null_resource" "mount" {
   connection {
     private_key  = var.ssh_private_key
     bastion_host = module.bastion.floating_ip_address
@@ -201,7 +207,24 @@ resource "null_resource" "ansible_runner" {
       }
       verbose        = true
     }
+      ansible_ssh_settings {
+      insecure_no_strict_host_key_checking = true
+      connect_timeout_seconds              = 60
+    }
 
+  }
+}
+
+
+resource "null_resource" "db2install" {
+  depends_on = [null_resource.mount]
+  connection {
+    private_key  = var.ssh_private_key
+    bastion_host = module.bastion.floating_ip_address
+    host = ibm_is_instance.frontend.primary_network_interface.0.primary_ipv4_address
+    user = "root"
+  }
+  provisioner "ansible" {
     plays {
       playbook {
         file_path = "${path.module}/playbooks/db2install.yml"

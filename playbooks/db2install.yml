@@ -2,6 +2,13 @@
 - name: This is a playbook for installing db2
   hosts: all
   tasks:
+    - name: Enable a RHSM repository
+      rhsm_repository:
+        name: rhel-server-rhscl-7-rpms 
+    - name: Install a yum package in Ansible example
+      yum:
+        name: python27-python-pip
+        state: present
     - name: Copy file with owner and permissions
       copy:
         src: db2scripts.tar
