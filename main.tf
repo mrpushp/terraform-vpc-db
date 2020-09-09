@@ -30,7 +30,7 @@ data "ibm_is_ssh_key" "sshkey" {
 locals {
   bastion_inress_cidr     = "0.0.0.0/0" # DANGER: cidr range that can ssh to the bastion when maintenance is enabled
   maintenance_egress_cidr = "0.0.0.0/0" # cidr range required to contact software repositories when maintenance is enabled
-  backend_ingress_cidr   = "0.0.0.0/0" # DANGER: cidr range that can access the front end service
+  backend_ingress_cidr    = "0.0.0.0/0" # DANGER: cidr range that can access the front end service
 }
 
 module "bastion" {
@@ -154,31 +154,34 @@ resource "ibm_is_floating_ip" "backend" {
 }
 
 resource "ibm_is_volume" "volume" {
-  count          = var.backend_count
-  name = "${var.basename}-backend-volume"
-  zone           = var.zone
+  count    = var.backend_count
+  name     = "${var.basename}-backend-volume"
+  zone     = var.zone
   iops     = var.iops
   capacity = var.capacity
-  profile = var.volume_profile
+  profile  = var.volume_profile
 }
 
 
 resource "null_resource" "mount" {
-  count          = var.backend_count
+  count = var.backend_count
   connection {
     private_key  = var.ssh_private_key
     bastion_host = module.bastion.floating_ip_address
-    host = element(ibm_is_instance.backend.*.primary_network_interface.0.primary_ipv4_address, count.index)
-    user = "root"
+    host         = element(ibm_is_instance.backend.*.primary_network_interface.0.primary_ipv4_address, count.index)
+    user         = "root"
   }
   provisioner "ansible" {
     plays {
       playbook {
         file_path = "${path.module}/playbooks/mount.yml"
       }
-      verbose        = true
+      verbose = true
+      extra_vars = {
+        block_storage = var.mount_path
+      }
     }
-      ansible_ssh_settings {
+    ansible_ssh_settings {
       insecure_no_strict_host_key_checking = true
       connect_timeout_seconds              = 60
     }
@@ -188,23 +191,32 @@ resource "null_resource" "mount" {
 
 
 resource "null_resource" "db2install" {
-   count          = var.backend_count
+  count      = var.backend_count
   depends_on = [null_resource.mount]
   connection {
     private_key  = var.ssh_private_key
     bastion_host = module.bastion.floating_ip_address
-    host = element(ibm_is_instance.backend.*.primary_network_interface.0.primary_ipv4_address, count.index)
-    user = "root"
+    host         = element(ibm_is_instance.backend.*.primary_network_interface.0.primary_ipv4_address, count.index)
+    user         = "root"
   }
   provisioner "ansible" {
     plays {
       playbook {
         file_path = "${path.module}/playbooks/db2install.yml"
       }
-      verbose        = true
+      verbose = true
+       extra_vars = {
+        db2_image_cos_url = var.db2_image_cos_url
+        db2_install_dir = var.db2_install_dir
+        db2_owner = var.db2_owner
+        db2_owner_password = var.db2_owner_password
+        db2_fence_user = var.db2_fence_user
+        db2_port = var.db2_port
+        db2_name = var.db2_name
+      }
     }
 
-      ansible_ssh_settings {
+    ansible_ssh_settings {
       insecure_no_strict_host_key_checking = true
       connect_timeout_seconds              = 60
     }

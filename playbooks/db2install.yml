@@ -39,7 +39,7 @@
     - name: Download the tar file
       become: yes
       get_url:
-        url: https://s3-api.us-geo.objectstorage.softlayer.net/cpssoftware/DB2S_11.5.4_MPML.tar.gz?AWSAccessKeyId=801bc7a5cb9a49e7b5308cd8d2d7971f&Expires=1630756329&Signature=CUhMhUFJNpywIqsf4Jc7ZFMxXWs%3D
+        url: "{{ db2_image_cos_url }}"
         dest: /tmp/db2server
         mode: 0755
         group: root
@@ -55,6 +55,6 @@
         remote_src: yes
         list_files: yes
     - name: Run Py script
-      command: python2.7 /tmp/db2scripts/db2_install.py "/opt/IBM/db2/V11.1" "db2inst1" "passw0rd" "50000" "db2fenc1" "sample"
+      command: python2.7 /tmp/db2scripts/db2_install.py "{{ db2_install_dir }}" "{{ db2_owner }}" "{{ db2_owner_password }}" "{{ db2_fence_user }}" "{{ db2_port }}" "{{ db2_name }}"
       become: yes
       become_user: root

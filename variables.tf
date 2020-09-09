@@ -99,4 +99,33 @@ variable "volume_profile" {
 
 
 variable "ssh_private_key" {
+   }
+
+variable "mount_path" {
+    default = "/dev/vdd"
+}
+
+variable "db2_image_cos_url" {
+}
+
+variable "db2_install_dir" {
+    default = "/opt/IBM/db2/V11.1"
+}
+variable "db2_owner" {
+    default = "db2inst1"
+}
+variable "db2_owner_password" {
+    default = "passw0rd"
+}
+
+variable "db2_fence_user" {
+    default = "db2fenc1"
+}
+
+variable "db2_port" {
+    default = "50000"
+}
+
+variable "db2_name" {
+    default = "sample"
 }
