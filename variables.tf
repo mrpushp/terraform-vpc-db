@@ -9,7 +9,7 @@ variable "region" {
     description = "Enter the target region in which resources are to be created"
 }
 
-# this module does not have defaults for anything but the port that the backend makes available to the frontend
+# this module does not have defaults for anything but the port that the backend makes available to the backend
 # ssh key name the string 'pfq' in the example below:
 # $ ibmcloud is keys
 # Listing keys under account Powell Quiring's Account as user pquiring@us.ibm.com...
@@ -60,6 +60,12 @@ variable "ibm_is_image_id" {
     default = "r006-931515d2-fcc3-11e9-896d-3baa2797200f"  #ibm-redhat-7-6-minimal-amd64-1
 }
 
+# No of backend instances
+variable "backend_count" {
+    default = 1
+}
+
+
 # set to true if the backend should have a public gateway.  This is used to provision software.
 variable "backend_pgw" {
     default = true
@@ -72,7 +78,7 @@ variable "maintenance" {
 }
 
 # provide the cloud-init script, empty means none
-variable "frontend_user_data" {
+variable "backend_user_data" {
     default = ""
 }
 

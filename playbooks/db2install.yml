@@ -55,6 +55,6 @@
         remote_src: yes
         list_files: yes
     - name: Run Py script
-      command: python2.7 /tmp/db2scripts/db2_install.py "/opt/IBM/db2/V11.1" "db2inst1" "passw0rd" "50000" "db2fenc1"
+      command: python2.7 /tmp/db2scripts/db2_install.py "/opt/IBM/db2/V11.1" "db2inst1" "passw0rd" "50000" "db2fenc1" "sample"
       become: yes
       become_user: root

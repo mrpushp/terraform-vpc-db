@@ -30,7 +30,7 @@ data "ibm_is_ssh_key" "sshkey" {
 locals {
   bastion_inress_cidr     = "0.0.0.0/0" # DANGER: cidr range that can ssh to the bastion when maintenance is enabled
   maintenance_egress_cidr = "0.0.0.0/0" # cidr range required to contact software repositories when maintenance is enabled
-  frontend_ingress_cidr   = "0.0.0.0/0" # DANGER: cidr range that can access the front end service
+  backend_ingress_cidr   = "0.0.0.0/0" # DANGER: cidr range that can access the front end service
 }
 
 module "bastion" {
@@ -94,98 +94,68 @@ resource "ibm_is_security_group_rule" "maintenance_egress_udp_53" {
   }
 }
 
-resource "ibm_is_subnet" "frontend" {
-  name                     = "${var.basename}-frontend-subnet"
+resource "ibm_is_subnet" "backend" {
+  name                     = "${var.basename}-backend-subnet"
   vpc                      = ibm_is_vpc.vpc.id
   zone                     = var.zone
   total_ipv4_address_count = 256
   resource_group           = data.ibm_resource_group.all_rg.id
 }
 
-resource "ibm_is_security_group" "frontend" {
-  name           = "${var.basename}-frontend-sg"
+resource "ibm_is_security_group" "backend" {
+  name           = "${var.basename}-backend-sg"
   vpc            = ibm_is_vpc.vpc.id
   resource_group = data.ibm_resource_group.all_rg.id
 }
 
-resource "ibm_is_security_group_rule" "frontend_ingress_80_all" {
-  group     = ibm_is_security_group.frontend.id
-  direction = "inbound"
-  remote    = local.frontend_ingress_cidr
-
-  tcp {
-    port_min = 80
-    port_max = 80
-  }
-}
-
-resource "ibm_is_security_group_rule" "frontend_ingress_22_bastion" {
-  group     = ibm_is_security_group.frontend.id
-  direction = "inbound"
-  remote    = module.bastion.security_group_id
-
-  tcp {
-    port_min = 22
-    port_max = 22
-  }
-}
-
-/*resource "ibm_is_security_group_rule" "frontend_ingress_22_bastion_group" {
-  group     = ibm_is_security_group.frontend.id
-  direction = "inbound"
-  remote    = module.bastion.bastion_security_group_id
-
-  tcp {
-    port_min = 22
-    port_max = 22
-  }
-}*/
-
-resource "ibm_is_security_group_rule" "frontend_egress_all" {
-  group     = ibm_is_security_group.frontend.id
+resource "ibm_is_security_group_rule" "backend_egress_all" {
+  group     = ibm_is_security_group.backend.id
   direction = "outbound"
-  remote    = local.frontend_ingress_cidr
+  remote    = local.backend_ingress_cidr
 }
 
 
-#Frontend
+#backend
 locals {
-  # create either [frontend] or [frontend, maintenance] depending on the var.maintenance boolean
-  frontend_security_groups = split(
+  # create either [backend] or [backend, maintenance] depending on the var.maintenance boolean
+  backend_security_groups = split(
     ",",
     var.maintenance ? format(
       "%s,%s",
-      ibm_is_security_group.frontend.id,
+      ibm_is_security_group.backend.id,
       module.bastion.security_group_id,
-    ) : ibm_is_security_group.frontend.id,
+    ) : ibm_is_security_group.backend.id,
   )
 }
 
-resource "ibm_is_instance" "frontend" {
-  name           = "${var.basename}-frontend-vsi"
+resource "ibm_is_instance" "backend" {
+  count          = var.backend_count
+  name           = "${var.basename}-backend-vsi"
   image          = var.ibm_is_image_id
   profile        = var.profile
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.zone
   keys           = [data.ibm_is_ssh_key.sshkey.id]
-  user_data      = var.frontend_user_data
+  user_data      = var.backend_user_data
   resource_group = data.ibm_resource_group.all_rg.id
 
   primary_network_interface {
-    subnet          = ibm_is_subnet.frontend.id
-    security_groups = flatten([local.frontend_security_groups])
+    subnet          = ibm_is_subnet.backend.id
+    security_groups = flatten([local.backend_security_groups])
   }
-  volumes = [ibm_is_volume.volume.id]
+  volumes = [element(ibm_is_volume.volume.*.id, count.index)]
 }
 
-resource "ibm_is_floating_ip" "frontend" {
-  name           = "${var.basename}-frontend-ip"
-  target         = ibm_is_instance.frontend.primary_network_interface[0].id
+resource "ibm_is_floating_ip" "backend" {
+  count          = var.backend_count
+  name           = "${var.basename}-backend-ip"
+  target         = element(ibm_is_instance.backend.*.primary_network_interface.0.id, count.index)
   resource_group = data.ibm_resource_group.all_rg.id
 }
 
 resource "ibm_is_volume" "volume" {
-  name = "${var.basename}-frontend-volume"
+  count          = var.backend_count
+  name = "${var.basename}-backend-volume"
   zone           = var.zone
   iops     = var.iops
   capacity = var.capacity
@@ -194,10 +164,11 @@ resource "ibm_is_volume" "volume" {
 
 
 resource "null_resource" "mount" {
+  count          = var.backend_count
   connection {
     private_key  = var.ssh_private_key
     bastion_host = module.bastion.floating_ip_address
-    host = ibm_is_instance.frontend.primary_network_interface.0.primary_ipv4_address
+    host = element(ibm_is_instance.backend.*.primary_network_interface.0.primary_ipv4_address, count.index)
     user = "root"
   }
   provisioner "ansible" {
@@ -217,11 +188,12 @@ resource "null_resource" "mount" {
 
 
 resource "null_resource" "db2install" {
+   count          = var.backend_count
   depends_on = [null_resource.mount]
   connection {
     private_key  = var.ssh_private_key
     bastion_host = module.bastion.floating_ip_address
-    host = ibm_is_instance.frontend.primary_network_interface.0.primary_ipv4_address
+    host = element(ibm_is_instance.backend.*.primary_network_interface.0.primary_ipv4_address, count.index)
     user = "root"
   }
   provisioner "ansible" {

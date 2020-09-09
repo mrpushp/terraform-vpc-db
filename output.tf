@@ -3,5 +3,5 @@ output "bastion_public_ip" {
 }
 
 output "vm_private_ip" {
-    value = ibm_is_instance.frontend.primary_network_interface.0.primary_ipv4_address
+    value = ibm_is_instance.backend.*.primary_network_interface.0.primary_ipv4_address
 }
