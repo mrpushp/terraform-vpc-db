@@ -55,6 +55,6 @@
         remote_src: yes
         list_files: yes
     - name: Run Py script
-      command: python2.7 /tmp/db2scripts/db2_install.py "{{ db2_install_dir }}" "{{ db2_owner }}" "{{ db2_owner_password }}" "{{ db2_fence_user }}" "{{ db2_port }}" "{{ db2_name }}"
+      command: python2.7 /tmp/db2scripts/db2_install.py "{{ db2_install_dir }}" "{{ db2_owner }}" "{{ db2_owner_password }}" "{{ db2_port }}" "{{ db2_fence_user }}" "{{ db2_name }}"
       become: yes
       become_user: root
