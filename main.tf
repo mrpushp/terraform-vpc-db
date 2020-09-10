@@ -178,7 +178,7 @@ resource "null_resource" "mount" {
       }
       verbose = true
       extra_vars = {
-        block_storage = var.mount_path
+        block_storage = var.block_storage
       }
     }
     ansible_ssh_settings {

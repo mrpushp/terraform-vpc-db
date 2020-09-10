@@ -83,6 +83,7 @@ variable "backend_user_data" {
 }
 
 variable "resource_group_name" {
+     default = "Default"
 }
 
 variable "iops" {
@@ -101,7 +102,7 @@ variable "volume_profile" {
 variable "ssh_private_key" {
    }
 
-variable "mount_path" {
+variable "block_storage" {
     default = "/dev/vdd"
 }
 

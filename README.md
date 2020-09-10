@@ -23,7 +23,7 @@ security group configuration, please see the IBM Developer article
 The following resources are deployed by this template and may incur
 charges.
 
-- 1 x Floating IP address
+- 2 x Floating IP address
 - 1 x Public Gateway
 - 2 x VSIs
 - 1 x VPC
@@ -38,7 +38,7 @@ tags on the `ibm_is_instance` resource statements. Tags are prefixed with "ans_g
 `tags = ["ans_group:backend"]`. A VSI can be assigned to multiple groups, by the addition of multiple `ans_group:`
 prefixed tags.
 
-In this example VSI's are grouped by the Terraform module (frontend) used for deployment. This ensures the match between the VPC network configuration of a VSI and the Ansible role deployed on the VSI.
+In this example VSI's are grouped by the Terraform module (backend) used for deployment. This ensures the match between the VPC network configuration of a VSI and the Ansible role deployed on the VSI.
 
 Correct specification of tags is essential for operation of the Ansible dynamic inventory
 script used by Ansible to retrieve host information from the Terraform State file. The tags here should match the roles
@@ -68,14 +68,22 @@ defined in the mount.yml playbook file.
 | zone | zone of the resources | string | | "us-south-1" |   |
 | profile | Profile for VSI deployed in frontend and backend  | string  | | "cx2-2x4" |  |
 | ibm_is_image_id | Image ID for Bastion and frontend VSIs| string | |"r006-931515d2-fcc3-11e9-896d-3baa2797200f" |   |
-| backend_pgw | set to true if the backend should have a public gateway  | bool | | "true" |   |  
+| backend_pgw | set to true if the backend should have a public gateway  | bool | | "true" |   |
+| backend_count | no of the backend instances  | int | | 1 |   |  
 | maintenance | set to true for allowing ssh access from the bastion  | string | | "mydb" |   |  
 | frontend_user_data | cloud-init script  | string | | "" |   |
 | resource_group_name | Name of IBM Cloud Resource Group used for all VPC resources | string | | "Default" |  |  
 | iops | IOPS for Block storage  | string | | "100" |   |  
 | capacity | Capacity of the block storage  | string | | "200" |   |
 | volume_profile | Profile of the Block storage  | custom | | "mydb" |   |
-| ssh_private_key | Optional private key from key pair. Only required if it desired to validate remote SSH access to the bastion host and VSIs. | string  | ✓ | |  ✓   |
+| ssh_private_key | Optional private key from key pair. | string  | ✓ | | ✓ |
+| block_storage | The path of the device | string | | /dev/vdd | |
+| db2_image_cos_url | The COS URL where the db2 image is stored. | string  | ✓ | | ✓ | 
+| db2_owner | The db2 owner | string | | db2inst1 | |   
+| db2_owner_password | The passowrd for db2 owner | string | |passw0rd | |  
+| db2_fence_user | The db2 fence user | string | | db2fenc1  | |  
+| db2_port | The db2 port | string | | 50000 | |  
+| db2_name | The name for the databse | string | | sample | |  
 
 
 ## Outputs
@@ -83,8 +91,7 @@ defined in the mount.yml playbook file.
 |  **name**      |    **description**  |
 |  --------------------------------------- | ------------------------------------------- |
 |  floating_ip_address | Floating IP address attached to the bastion |
-|  security_group_id | Maintenance security group |
-|  bastion_security_group_id | Bastion maintenance security group |
+|  vm_private_ip | Private IP address attached to the backend instances |
 
 ## Instructions
 
