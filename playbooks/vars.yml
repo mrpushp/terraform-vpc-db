@@ -1,2 +1,4 @@
 ---
-block_storage: /dev/vdd
+block_storage_size: 20
+# possible values(case-sensitive)- KiB, MiB, GiB etc.
+block_storage_unit: GiB

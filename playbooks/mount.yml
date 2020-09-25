@@ -11,18 +11,27 @@
       shell: df -Th
       register: df_output
 
-    - name: get the fdisk info on the remote machine
+    - name: get the block storage from fdisk info on the remote machine
       become: true
-      shell: fdisk -l 
+      shell: fdisk -l | grep "^Disk.*{{block_storage_size}} {{block_storage_unit}}," | awk '{gsub(":", "", $2); if(NR==1) print $2}'
+      register: fdisk_output
 
-    - name: check if /dev/vdd already exists
-      when: '"{{ block_storage }}" in df_output.stdout'
-      debug: msg="/dev/vdd is already mounted"
+    - name: set the block storage variable
+      set_fact:
+        block_storage: "{{ fdisk_output.stdout }}"
+
+    - name: fail the playbook if block storage is not found
+      fail: msg="Block storage not found"
+      when: (block_storage is undefined) or (block_storage|length == 0)
+
+    - name: check if {{ block_storage }} already exists in partition
+      when: 'block_storage in df_output.stdout'
+      debug: msg="{{ block_storage }} is already mounted"
 
     - name: make the file system on the remote machine 
       become: true
-      shell: mkfs.ext4 "{{ block_storage }}"
-      when: '"{{ block_storage }}" not in df_output.stdout'
+      shell: mkfs.ext4 {{ block_storage }}
+      when: 'block_storage not in df_output.stdout'
 
     - name: create directory if they dont exist to mount a volume
       file:
@@ -31,26 +40,26 @@
         owner: root
         group: root
         mode: 0775
-      when: '"{{ block_storage }}" not in df_output.stdout'
+      when: 'block_storage not in df_output.stdout'
 
     - name: mount /mnt/secondary
-      shell: mount "{{ block_storage }}" /mnt/secondary
-      when: '"{{ block_storage }}" not in df_output.stdout'
+      shell: mount {{ block_storage }} /mnt/secondary
+      when: 'block_storage not in df_output.stdout'
 
     - name: To find the UUID of the partition 
       become: true
-      shell: blkid "{{ block_storage }}" -sUUID -ovalue
+      shell: blkid {{ block_storage }} -sUUID -ovalue
       register: UUID
-      when: '"{{ block_storage }}" not in df_output.stdout'
+      when: 'block_storage not in df_output.stdout'
 
     - name: Add mount to /etc/fstab
       lineinfile:
         dest: /etc/fstab
         line: '/dev/disk/by-uuid/{{UUID.stdout}} /mnt/secondary ext4 defaults 0 0'
-      when: '"{{ block_storage }}" not in df_output.stdout'
+      when: 'block_storage not in df_output.stdout'
 
-    - name: Verify if block_storage is mounted
+    - name: Verify if {{ block_storage }} is mounted
       command:  mount
       register: mount_output
-      failed_when: '"{{ block_storage }}" not in mount_output.stdout'
-      when: '"{{ block_storage }}" not in df_output.stdout'
+      failed_when: 'block_storage not in mount_output.stdout'
+      when: 'block_storage not in df_output.stdout'
